@@ -1,0 +1,151 @@
+
+Ref: http://octave-online.net/
+Ref: https://en.wikibooks.org/wiki/MATLAB_Programming/Differences_between_Octave_and_MATLAB
+
+FFT
+===
+
+Ref: http://www.mathworks.com/help/matlab/ref/fft.html
+
+Fs = 1000;            % Sampling frequency
+T = 1/Fs;             % Sampling period
+L = 1000;             % Length of signal
+t = (0:L-1)*T;        % Time vector
+S = 0.7*sin(2*pi*50*t) + sin(2*pi*120*t);
+X = S + 2*randn(size(t));
+Y = fft(X);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+f = Fs*(0:(L/2))/L;
+plot(f,P1)
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+Filters
+=======
+
+Ref: https://tty1.net/blog/2009/filters-with-gnu-octave_en.html
+
+.. follows from fft
+Fnyq = Fs/2;
+Fc=100;
+[b,a]=butter(2, Fc/Fs);
+output=filter(b,a,X);
+Y = fft(output);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+f = Fs*(0:(L/2))/L;
+plot(f,P1)
+
+ODEs
+====
+
+Symbolic
+    syms y(t)
+    z = dsolve(diff(y) == 2*t)
+        -> t^2 + C
+
+Numerically
+    % equation: y' = 2t (solution: t^2)
+    tspan = [0 5];
+    y0 = 0;
+    [t,y] = ode45(@(t,y) 2*t, tspan, y0);
+    plot(t,y,'-o')
+
+Symbolic
+========
+
+syms x
+solve(2*x == 1,x)
+  -> x=1/2
+solve(x^2+2*x == 0,x)
+  -> -2, 0
+
+Integrals
+=========
+
+Ref: http://www.gnu.org/software/octave/doc/v4.0.1/Numerical-Integration.html
+
+function y = f (x)
+  y = x .* sin (1./x) .* sqrt (abs (1 - x));
+endfunction
+
+[q, ier, nfun, err] = quad ("f", 0, 3)
+
+Curve fit
+=========
+
+Ref: http://www.gnu.org/software/octave/doc/v4.0.1/Polynomial-Interpolation.html
+
+x = 2 * pi * rand (1, 200);
+y = sin (x) + sin (2 * x) + 0.2 * randn (size (x));
+## Uniform breaks
+breaks = linspace (0, 2 * pi, 41); % 41 breaks, 40 pieces
+pp1 = splinefit (x, y, breaks);
+## Breaks interpolated from data
+pp2 = splinefit (x, y, 10);  % 11 breaks, 10 pieces
+## Plot
+xx = linspace (0, 2 * pi, 400);
+y1 = ppval (pp1, xx);
+y2 = ppval (pp2, xx);
+plot (x, y, ".", xx, [y1; y2])
+axis tight
+ylim auto
+legend ({"data", "41 breaks, 40 pieces", "11 breaks, 10 pieces"})
+
+Image edge detection
+====================
+
+Sobel filter
+	pkg load image
+	I = imread("Lenna.png");
+	gray = rgb2gray(I);
+	[bw, thresh] = edge(gray, "Sobel");
+	overlay = gray.*imcomplement(bw);
+	imshow(overlay)
+
+Canny detector
+    Ref: http://www.malcolmmclean.site11.com/www/BinaryImageProcessing/canny.html
+    Ref: http://octave.sourceforge.net/image/function/edge.html
+    pkg load image
+    im = imread("Lenna.png");
+    gray = rgb2gray(im);
+    imshow(gray);
+    sobel = [-1 0 1; -2 0 2; -1 0 1]
+    f = filter2(sobel, gray);
+    imshow(f);
+    bw = edge(gray, "Canny", [2.5, 6.5], 3.0); // low,high thresold,gaussian blur
+    imshow(bw)
+
+Solving equations with matrices
+===============================
+
+http://www.hiru.eus/matematicas/resolucion-de-ecuaciones-mediante-matrices
+
+a = [1 1 -1; 1 2 2; 2 1 -1];
+b = [-1 0 1]';
+>> a\b
+ans =
+   2
+  -2
+   1
+
+
+3D plot
+=======
+
+Ref: http://math-blog.com/2011/04/25/plotting-and-graphics-in-octave/
+
+
+
+
+
+
+
+
+
+
+
